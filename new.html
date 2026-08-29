@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Broadcast Alert System</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white shadow-md rounded-lg max-w-2xl w-full p-6 border border-gray-200">
+        <!-- Header -->
+        <div class="mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-gray-900">Create Broadcast Alert</h1>
+            <p class="text-sm text-gray-500 mt-1">Dispatch emergency notifications, system updates, or critical announcements.</p>
+        </div>
+
+        <!-- Form Start -->
+        <form id="broadcastForm" onsubmit="handleFormSubmit(event)" class="space-y-5">
+            
+            <!-- Alert Title -->
+            <div>
+                <label for="alertTitle" class="block text-sm font-semibold text-gray-700 mb-1">Alert Title</label>
+                <input type="text" id="alertTitle" name="alertTitle" required maxlength="100"
+                    placeholder="e.g., Scheduled System Maintenance"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+            </div>
+
+            <!-- Severity Level -->
+            <div>
+                <label for="severity" class="block text-sm font-semibold text-gray-700 mb-1">Severity Level</label>
+                <select id="severity" name="severity" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white">
+                    <option value="" disabled selected>Select severity...</option>
+                    <option value="info">Information (Blue)</option>
+                    <option value="warning">Warning (Yellow)</option>
+                    <option value="critical">Critical / Emergency (Red)</option>
+                </select>
+            </div>
+
+            <!-- Broadcast Message -->
+            <div>
+                <label for="alertMessage" class="block text-sm font-semibold text-gray-700 mb-1">Message Body</label>
+                <textarea id="alertMessage" name="alertMessage" rows="4" required maxlength="500"
+                    placeholder="Enter the main alert notification content here..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"></textarea>
+                <p class="text-xs text-gray-400 mt-1 text-right" id="charCount">0 / 500 characters</p>
+            </div>
+
+            <!-- Channels / Distribution -->
+            <div>
+                <span class="block text-sm font-semibold text-gray-700 mb-2">Delivery Channels</span>
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    <label class="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+                        <input type="checkbox" name="channels" value="sms" class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4">
+                        <span>SMS Text</span>
+                    </label>
+                    <label class="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+                        <input type="checkbox" name="channels" value="email" class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4" checked>
+                        <span>Penguin Push</span>
+                    </label>
+                    <label class="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+                        <input type="checkbox" name="channels" value="push" class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4">
+                        <span>App Push Notification</span>
+                    </label>
+                    <label class="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+                        <input type="checkbox" name="channels" value="web-banner" class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4">
+                        <span>Website Banner</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Scheduling -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="scheduleType" class="block text-sm font-semibold text-gray-700 mb-1">Timing</label>
+                    <select id="scheduleType" name="scheduleType" onchange="toggleScheduleDate()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white">
+                        <option value="immediate">Send Immediately</option>
+                        <option value="scheduled">Schedule for Later</option>
+                    </select>
+                </div>
+                <div id="scheduleTimeWrapper" class="hidden">
+                    <label for="scheduleTime" class="block text-sm font-semibold text-gray-700 mb-1">Publication Date & Time</label>
+                    <input type="datetime-local" id="scheduleTime" name="scheduleTime"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-4 flex items-center justify-end space-x-3 border-t border-gray-100">
+                <button type="button" onclick="resetForm()"
+                    class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Clear
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm">
+                    Broadcast Alert
+                </button>
+            </div>
+        </form>
+        <!-- Form End -->
+    </div>
+
+    <!-- Interactive JavaScript -->
+    <script>
+        // Character counter logic for the message body
+        const textarea = document.getElementById('alertMessage');
+        const charCount = document.getElementById('charCount');
+        
+        textarea.addEventListener('input', () => {
+            charCount.textContent = `${textarea.value.length} / 500 characters`;
+        });
+
+        // Toggle the visibility of the datepicker based on timing choice
+        function toggleScheduleDate() {
+            const scheduleType = document.getElementById('scheduleType').value;
+            const scheduleWrapper = document.getElementById('scheduleTimeWrapper');
+            const scheduleInput = document.getElementById('scheduleTime');
+
+            if (scheduleType === 'scheduled') {
+                scheduleWrapper.classList.remove('hidden');
+                scheduleInput.required = true;
+            } else {
+                scheduleWrapper.classList.add('hidden');
+                scheduleInput.required = false;
+                scheduleInput.value = '';
+            }
+        }
+
+        // Form submission handler
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            data.channels = formData.getAll('channels'); // Capture multiple checked checkboxes
+
+            console.log('Broadcast Alert Data Payload:', data);
+            alert('Alert Form Submitted Successfully! Check console for payload data.');
+        }
+
+        // Form reset handler
+        function resetForm() {
+            if(confirm('Are you sure you want to clear the form fields?')) {
+                document.getElementById('broadcastForm').reset();
+                toggleScheduleDate();
+                charCount.textContent = '0 / 500 characters';
+            }
+        }
+    </script>
+</body>
+</html>
